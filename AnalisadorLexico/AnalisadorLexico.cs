@@ -462,9 +462,9 @@ namespace AnalisadorLexico
             Estado_Final.Add("Comentário", 7);
             Estado_Final.Add("opr", 8);
             Estado_Final.Add("rcb", 9);
-            Estado_Final.Add("AB_P", 10);
-            Estado_Final.Add("FC_P", 11);
-            Estado_Final.Add("PT_V", 12);
+            Estado_Final.Add("ab_p", 10);
+            Estado_Final.Add("fc_p", 11);
+            Estado_Final.Add("pt_v", 12);
             Estado_Final.Add("fim", 13);
             Estado_Final.Add("ERRO", 14);
             Estado_Final.Add("id", 15);

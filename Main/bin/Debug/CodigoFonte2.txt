@@ -6,7 +6,7 @@ varinicio
 		C real;
 varfim;
 	
- "Digite B:";
+escreva "Digite B:";
 leia B;               
 escreva "Digite A:";  
 leia A;

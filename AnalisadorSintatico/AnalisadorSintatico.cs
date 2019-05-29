@@ -28,11 +28,9 @@ namespace AnalisadorSintatico
 
             _pilha.Push(0);
             int estado = 0;
-            bool erro = false;
             Simbolo simbolo = analisadorLexico.RetornaToken();
-            int f = 1;
             Stack<Simbolo> pilhaDeSimbolos = new Stack<Simbolo>();
-            
+
             while (true)
             {
                 //CASO O PRÓXIMO SÍMBOLO SEJA NULO O ANALISADOR ENTENDE QUE CHEGOU AO FINAL DO ARQUIVO
@@ -40,7 +38,6 @@ namespace AnalisadorSintatico
                     simbolo = new Simbolo { Token = "$" };
 
                 string acao = _tabelaShiftReduce.Rows[estado][$"{simbolo.Token}"].ToString();
-
 
                 if (acao.Contains("S"))
                 {
@@ -67,13 +64,12 @@ namespace AnalisadorSintatico
                         int numSimbolos = Simbolos.Count();
                         //DESEMPILHA QUANTIDADE DE SIMBOLOS LADO DIREITO
                         for (int i = 0; i < numSimbolos; i++)
-                            _pilha.Pop();          
+                            _pilha.Pop();
 
                         //EMPILHAR O VALOR DE [t,A] na pilha
                         estado = Convert.ToInt32(_tabelaShiftReduce.Rows[Convert.ToInt32(_pilha.Peek())][producao[0].ToString()]);
                         _pilha.Push(estado);
-                        Console.WriteLine($"{f} - {producao[0]} -> {producao[1]}");
-                        f++;
+                        Console.WriteLine($"{producao[0]} -> {producao[1]}");
                     }
                     else
                     {
@@ -85,7 +81,7 @@ namespace AnalisadorSintatico
                         }
                         else
                         {
-                            Simbolo s  = CopiaSimbolo(simbolo);
+                            Simbolo s = CopiaSimbolo(simbolo);
                             pilhaDeSimbolos.Push(s);
                             simbolo.Token = Erro(acao)[1].ToString(); //Rotina de erro
                         }
@@ -112,22 +108,20 @@ namespace AnalisadorSintatico
             erros.Add("E1", new string[] { "ESPERA-SE INSERÇÃO -> 'inicio'", "inicio" });
             erros.Add("E2", new string[] { "ESPERA-SE INSERÇÃO -> 'varinicio'", "varinicio" });
             erros.Add("E3", new string[] { "ESPERA - SE INSERÇÃO-> 'id'", "id" });
-
-
-            //erros.Add("E17", new string[] { "ESPERA-SE INSERÇÃO -> 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fim'", "leia" });
-
-            // erros.Add("E5", new string[] { "ESPERA-SE INSERÇÃO -> 'literal' ou 'num' ou 'id'", "id" });
             erros.Add("E6", new string[] { "ESPERA-SE INSERÇÃO -> '<-' (atribuição)", "rcb" });
-           // erros.Add("E7", "ESPERA-SE INSERÇÃO -> 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fimse'");
             erros.Add("E8", new string[] { "ESPERA-SE INSERÇÃO -> '(' abre parênteses", "AB_P" });
             erros.Add("E9", new string[] { "ESPERA-SE INSERÇÃO -> ';' ponto e virgula", "PT_V" });
-           // erros.Add("E10", "ESPERA-SE INSERÇÃO -> 'id' ou 'num'");
+            erros.Add("E10", new string[] { "ESPERA-SE INSERÇÃO -> 'id' ou 'num'", "num" });
             erros.Add("E11", new string[] { "ESPERA-SE INSERÇÃO -> ')' fecha parênteses", "FC_P" });
             erros.Add("E12", new string[] { "ESPERA-SE INSERÇÃO -> 'entao'", "entao" });
             erros.Add("E13", new string[] { "ESPERA-SE INSERÇÃO OPERADORES RELACIONAIS -> '<=' ou '>=' ou '<' ou '>' ou '=' ou '<>'", "opr" });
-           // erros.Add("E14", "ESPERA-SE INSERÇÃO -> 'varfim' ou 'id'");
-           // erros.Add("E15", "ESPERA-SE INSERÇÃO -> 'int' ou 'real' ou 'lit'");
+            erros.Add("E14", new string[] { "ESPERA-SE INSERÇÃO -> 'varfim' ou 'id'", "varfim" });
+            erros.Add("E15", new string[] { "ESPERA-SE INSERÇÃO -> 'inteiro' ou 'real' ou 'literal'", "inteiro" });
             erros.Add("E16", new string[] { "ESPERA-SE INSERÇÃO OPERADORES ARITMÉTICOS -> '+' ou '-' ou '*' ou '/'", "opm" });
+
+            //erros.Add("E17", new string[] { "ESPERA-SE INSERÇÃO -> 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fim'", "leia" });
+            // erros.Add("E5", new string[] { "ESPERA-SE INSERÇÃO -> 'literal' ou 'num' ou 'id'", "id" });
+            // erros.Add("E7", "ESPERA-SE INSERÇÃO -> 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fimse'");
 
             return erros;
         }

@@ -73,7 +73,7 @@ namespace AnalisadorLexico
                 if (_estadoAnterior == "num" && (_caracterAtual == 'E' || _caracterAtual == 'e'))
                     _colunaDaEntrada = 9;
 
-                _proxEstado = Convert.ToString(TabelaDeTransicao[_linhaDoEstado][_colunaDaEntrada]);                           
+                _proxEstado = Convert.ToString(TabelaDeTransicao[_linhaDoEstado][_colunaDaEntrada]);
 
                 if (EstadosFinais.ContainsKey(_estadoAnterior) && _proxEstado == "")
                 {
@@ -90,13 +90,13 @@ namespace AnalisadorLexico
                         if (_estadoAnterior.Equals("id"))
                             TabelaDeSimbolos.Add(s); // lista de identificadores
 
-                        s = PreencheERRO(s, _tipo_de_erro); //Verifica se ocorreu algum erro de caracter inválido durante a leitura
+                        s = PreencheAtributos(s, _tipo_de_erro); //Verifica se ocorreu algum erro de caracter inválido durante a leitura
 
                         return (s);
                     }
                     else
                     {
-                        s = PreencheERRO(s, _tipo_de_erro);//Verifica se ocorreu algum erro de caracter inválido durante a leitura
+                        s = PreencheAtributos(s, _tipo_de_erro);//Verifica se ocorreu algum erro de caracter inválido durante a leitura
 
                         return (s);
                     }
@@ -111,51 +111,26 @@ namespace AnalisadorLexico
                 }
 
                 _ponteiro++;
-                
-                if (Abertura.ContainsKey(_caracterAtual.ToString())) //Verifica há abertura de parenteses
-                {
-                    _contador_de_Erros++; //é um possível erro se não houver fechamento
-
-                    Abertura.TryGetValue(_caracterAtual.ToString(), out _tipo_de_erro);
-
-                    if (_listaDeErros.Count > 0) // Verifica se a lista está vazia
-                        _listaDeErros.RemoveAt(_listaDeErros.Count - 1); //Remove o último item da lista
-                    else
-                        _listaDeErros.Add(CriaErro(_tipo_de_erro)); // Adiciona um erro na lista
-                }
-
-                if (fechamento.ContainsKey(_caracterAtual.ToString())) //Verifica há fechamento de parenteses
-                {
-                    _contador_de_Erros--;  //é um possível erro se não houver abertura
-
-                    fechamento.TryGetValue(_caracterAtual.ToString(), out _tipo_de_erro);
-
-                    if (_listaDeErros.Count > 0)
-                        _listaDeErros.RemoveAt(_listaDeErros.Count - 1);
-                    else
-                        _listaDeErros.Add(CriaErro(_tipo_de_erro));
-                }
 
                 continue; // Continua o laço de análise
             }
 
-            Simbolo fim = TabelaDeSimbolos.Find(o => o.Lexema == _lexema); // verifica se o lexema formado está na tabela de simbolo
+            Simbolo simb = TabelaDeSimbolos.Find(o => o.Lexema == _lexema); // verifica se o lexema formado está na tabela de simbolo
 
-            if (_lexema == "fim")   // verifica se chegou no final da leitura do arquivo
+            if (simb == null)   // verifica se chegou no final da leitura do arquivo
             {
-                fim.Lexema = "fim";
-                fim.Token = "fim";
-                fim.Tipo = "fim";
+                simb = new Simbolo { Token = "$" };
                 _linha++;
+                PreencheAtributos(simb, _tipo_de_erro);
             }
 
-            if (_contador_de_Erros != 0)
-            {
-                foreach (Simbolo s in _listaDeErros)
-                    Console.WriteLine($@"Token: {s.Token} Descrição: {s.DescricaoERRO} Linha: {s.LinhaDoERRO} Coluna: {s.ColunaDoERRO}");
-            }
+            //if (_contador_de_Erros != 0)
+            //{
+            //    foreach (Simbolo s in _listaDeErros)
+            //        Console.WriteLine($@"Token: {s.Token} Descrição: {s.DescricaoERRO} Linha: {s.Linha} Coluna: {s.Coluna}");
+            //}
 
-            return (fim);
+            return (simb);
         }
 
         private Simbolo CriaErro(int codErro)
@@ -164,8 +139,8 @@ namespace AnalisadorLexico
             Simbolo s = new Simbolo();
 
             string _descricaoERRO = "";
-            s.LinhaDoERRO = ++_linha;
-            s.ColunaDoERRO = _coluna;
+            s.Linha = ++_linha;
+            s.Coluna = _coluna;
             TiposErros.TryGetValue(codErro, out _descricaoERRO);
             s.DescricaoERRO = _descricaoERRO;
 
@@ -173,16 +148,17 @@ namespace AnalisadorLexico
         }
 
 
-        private Simbolo PreencheERRO(Simbolo s, int cod_erro)
+        private Simbolo PreencheAtributos(Simbolo s, int cod_erro)
         {
             if (cod_erro >= 0) //Caso ocorra um erro, as seguintes informações são solicitadas
             {
                 string _descricaoERRO = "";
-                s.LinhaDoERRO = ++_linha;
-                s.ColunaDoERRO = _coluna;
                 TiposErros.TryGetValue(cod_erro, out _descricaoERRO);
                 s.DescricaoERRO = _descricaoERRO;
             }
+
+            s.Coluna = _coluna;
+            s.Linha = _linha;
 
             return (s);
         }
@@ -190,6 +166,7 @@ namespace AnalisadorLexico
         private void ModificaLinhaColuna()  // altera o valor da coluna e da linha de acordo com o caractere
         {
             _linhaAnterior = _linha;
+
             if (_estadoAnterior == "q0" && _caracterAtual == '\n')
                 _linha++;
 
@@ -198,6 +175,7 @@ namespace AnalisadorLexico
                 _coluna += 4;
                 return;
             }
+
             if (_linhaAnterior != _linha)
                 _coluna = 0;
             else
@@ -432,7 +410,7 @@ namespace AnalisadorLexico
             SimbolosValidos.Add("ERRO", 23);
             SimbolosValidos.Add(":", 24);
             SimbolosValidos.Add("\\", 25);
-            
+
             for (int i = 0; i < 10; i++)
             {
                 SimbolosValidos.Add($"{i}", 8);
@@ -495,7 +473,7 @@ namespace AnalisadorLexico
             Dictionary<int, string> Tipos_de_Erros = new Dictionary<int, string>();
 
             // descrição dos erros que são especificados na linguagem 
-            Tipos_de_Erros.Add(0, "Caracter Inválido");
+            Tipos_de_Erros.Add(0, "Caracter inesperado");
             Tipos_de_Erros.Add(1, "Espera fechar chave");
             Tipos_de_Erros.Add(2, "Espera fechar parênteses");
             Tipos_de_Erros.Add(3, "Espera abrir chave");

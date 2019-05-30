@@ -12,9 +12,9 @@
 
         public string DescricaoERRO { get; set; }
 
-        public int LinhaDoERRO { get; set; }
+        public int Linha{ get; set; }
 
-        public int ColunaDoERRO { get; set; }
+        public int Coluna { get; set; }
 
        
     }

@@ -24,7 +24,7 @@ namespace Main
         {
             if (s.Token == "ERRO")
             {
-                Console.WriteLine($@"Token: {s.Token} Descrição: {s.DescricaoERRO} Linha: {s.LinhaDoERRO} Coluna: {s.ColunaDoERRO}");
+                Console.WriteLine($@"Token: {s.Token} Descrição: {s.DescricaoERRO} Linha: {s.Linha} Coluna: {s.Coluna}");
             }
             else
             {

@@ -4,129 +4,152 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AnalisadorSintatico
 {
     public class AnalisadorSintatico
     {
         string _codigoFonte;
+        private Stack<int> _pilha = new Stack<int>();
+        private Dictionary<int, string[]> _producoes = Producoes();
+        private Dictionary<string, string[]> _erros = Erros();
+        private static DataTable _tabelaShiftReduce = CarregaTabelaShiftReduce();
+
         public AnalisadorSintatico(string codigoFonte)          // Instância o analisador léxico tendo como parametro o código fonte.
         {
             this._codigoFonte = codigoFonte;             // Acessa o codigo fonte 
         }
 
-        public Stack<int> _pilha = new Stack<int>();
-        private Dictionary<int, string[]> _producoes = Producoes();
-        private Dictionary<string, string[]> _erros = Erros();
-        private static DataTable _tabelaShiftReduce = CarregaTabelaShiftReduce();
-
         public void AnaliseSintatica()
         {
-            AnalisadorLexico.AnalisadorLexico analisadorLexico = new AnalisadorLexico.AnalisadorLexico(_codigoFonte);
-
-            _pilha.Push(0);
+            AnalisadorLexico.AnalisadorLexico analisadorLexico = new AnalisadorLexico.AnalisadorLexico(_codigoFonte);  //aqui é onde ele pega os tokens que o léxico envia
+            _pilha.Push(0);                                   // Empilha o estado inicial na pilha
             int estado = 0;
+            string acao = "";
+            string guardaToken = "";
             Simbolo simbolo = analisadorLexico.RetornaToken();
             Stack<Simbolo> pilhaDeSimbolos = new Stack<Simbolo>();
 
-            while (true)
-            {
-                //CASO O PRÓXIMO SÍMBOLO SEJA NULO O ANALISADOR ENTENDE QUE CHEGOU AO FINAL DO ARQUIVO
-                if (simbolo == null)
-                    simbolo = new Simbolo { Token = "$" };
-
-                string acao = _tabelaShiftReduce.Rows[estado][$"{simbolo.Token}"].ToString();
-
-                if (acao.Contains("S"))
+            while (true)    // Inicio do procedimento de Shift - Reduce
+            {               //enquanto ele não aceitar ou dar erro ele não para a execução
+                if (simbolo.Token != "ERRO") //CASO NÃO SEJA RETORNARDO UM ERRO DO ANALISADOR LÉXICO
                 {
-                    estado = Convert.ToInt32(acao.Substring(1));
-                    _pilha.Push(estado);
+                    acao = _tabelaShiftReduce.Rows[estado][$"{simbolo.Token}"].ToString(); //captura a ação da tabela shift-reduce de acordo com o estado e com o simbolo
 
-                    if (pilhaDeSimbolos.Count == 0)
+                    if (acao.Contains("S"))  //EMPILHA 
                     {
-                        simbolo = analisadorLexico.RetornaToken();
-                    }
-                    else
-                    {
-                        simbolo = pilhaDeSimbolos.Pop();
-                    }
-                }
-                else
-                {
-                    if (acao.Contains("R"))
-                    {
-                        int numProducao = Convert.ToInt32(acao.Substring(1));
-                        var producao = new string[2];
-                        _producoes.TryGetValue(numProducao, out producao);
-                        var Simbolos = producao[1].Split(' ');
-                        int numSimbolos = Simbolos.Count();
-                        //DESEMPILHA QUANTIDADE DE SIMBOLOS LADO DIREITO
-                        for (int i = 0; i < numSimbolos; i++)
-                            _pilha.Pop();
-
-                        //EMPILHAR O VALOR DE [t,A] na pilha
-                        estado = Convert.ToInt32(_tabelaShiftReduce.Rows[Convert.ToInt32(_pilha.Peek())][producao[0].ToString()]);
+                        estado = Convert.ToInt32(acao.Substring(1));
                         _pilha.Push(estado);
-                        Console.WriteLine($"{producao[0]} -> {producao[1]}");
-                    }
-                    else
-                    {
-                        if (acao.Contains("A"))
+
+                        if (pilhaDeSimbolos.Count == 0)
                         {
-                            Console.WriteLine("CADEIA ACEITA!");
-                            Console.ReadLine();
-                            break;
+                            simbolo = analisadorLexico.RetornaToken(); //atualiza o simbolo com o token retornado do léxico
                         }
                         else
                         {
-                            Simbolo s = CopiaSimbolo(simbolo);
-                            pilhaDeSimbolos.Push(s);
-                            simbolo.Token = Erro(acao)[1].ToString(); //Rotina de erro
+                            simbolo.Token = guardaToken; //atualiza o token após o tratamento do erro
+                            simbolo = pilhaDeSimbolos.Pop(); //atualiza com o simbolo da pilha
+                        }     
+                    }
+                    else
+                    {
+                        if (acao.Contains("R"))   // REDUZ
+                        {
+                            int numProducao = Convert.ToInt32(acao.Substring(1)); //captura o numero da produção se for S32 PEGA SO O 32;
+                            var producao = new string[2];
+                            _producoes.TryGetValue(numProducao, out producao); //Atualiza a produção De acordo com o número da ação;
+                            var Simbolos = producao[1].Split(' ');
+                            int numSimbolos = Simbolos.Count();
+                            //DESEMPILHA QUANTIDADE DE SÍMBOLOS LADO DIREITO
+                            for (int i = 0; i < numSimbolos; i++)
+                                _pilha.Pop();
+
+                            //EMPILHAR O VALOR DE [t,A] na pilha
+                            estado = Convert.ToInt32(_tabelaShiftReduce.Rows[Convert.ToInt32(_pilha.Peek())][producao[0].ToString()]); //pula para o estado seguinte
+                            _pilha.Push(estado);
+                            Console.WriteLine($"{producao[0]} -> {producao[1]}");
+                        }
+                        else
+                        {
+                            if (acao.Contains("ACC")) // ACEITA
+                            {
+                                Console.WriteLine("P' -> P");
+                                Console.WriteLine("CADEIA ACEITA!");
+                                Console.ReadLine();
+                                break;
+                            }
+                            else //EM CASO DE ERRO SINTÁTICO
+                            {
+                                if(Convert.ToInt32(acao.Substring(1)) < 16) //CASO O ERRO SEJA TRATÁVEL
+                                {
+                                    Simbolo s = CopiaSimbolo(simbolo);
+                                    pilhaDeSimbolos.Push(s);  //cria uma nova pilha para guardar os tokens já lidos
+                                    var tipoDeErro = Erro(acao, s);
+                                    guardaToken = simbolo.Token; //guarda o token do simbolo atual para atualizar depois do tratamento de erro
+                                    simbolo.Token = tipoDeErro[1].ToString(); //Rotina de erro
+                                }
+                                else //SE O ERRO NÃO FOR TRATÁVEL A COMPILAÇÃO É PAUSADA
+                                {
+                                    Erro(acao, simbolo);
+                                    break;
+                                } 
+                            }
                         }
                     }
                 }
-
+                else//EM CASO DE ERRO LÉXICO
+                {
+                    PrintErro(simbolo.DescricaoERRO, simbolo);
+                    simbolo = analisadorLexico.RetornaToken();
+                   // break;
+                }
             }
-
+            List<Simbolo> TabelaDeSimbolos = analisadorLexico.GetTabelaDeSimbolos();
         }
 
-        private string[] Erro(string acao)
+        private string[] Erro(string acao, Simbolo simbolo)  //verifica qual o tipo de erro mostra na tela o erro
         {
             string[] erro;
             _erros.TryGetValue(acao, out erro);
-            Console.WriteLine(erro[0] + "\n");
+            simbolo.Coluna = simbolo.Coluna - 1; //AJUSTE DO PONTEIRO
+            PrintErro(erro[0], simbolo);
+            return (erro); //retorna o erro para tratamento
+        }
 
-            return erro;
+        private void PrintErro(string descricao, Simbolo s = null)
+        {
+            Console.WriteLine("\n-------ERRO-------");
+            int coluna = s.Coluna > 0 ? s.Coluna - 1 : 1;
+            Console.WriteLine($"Descrição: {descricao} \nLinha: {s.Linha+1}\nColuna: {coluna}");
+            Console.ReadLine();
         }
 
         private static Dictionary<string, string[]> Erros()
         {
-            Dictionary<string, string[]> erros = new Dictionary<string, string[]>();
+            Dictionary<string, string[]> erros = new Dictionary<string, string[]>(); //Dicionario de erros 
 
-            erros.Add("E1", new string[] { "ESPERA-SE INSERÇÃO -> 'inicio'", "inicio" });
-            erros.Add("E2", new string[] { "ESPERA-SE INSERÇÃO -> 'varinicio'", "varinicio" });
-            erros.Add("E3", new string[] { "ESPERA - SE INSERÇÃO-> 'id'", "id" });
-            erros.Add("E6", new string[] { "ESPERA-SE INSERÇÃO -> '<-' (atribuição)", "rcb" });
-            erros.Add("E8", new string[] { "ESPERA-SE INSERÇÃO -> '(' abre parênteses", "AB_P" });
-            erros.Add("E9", new string[] { "ESPERA-SE INSERÇÃO -> ';' ponto e virgula", "PT_V" });
-            erros.Add("E10", new string[] { "ESPERA-SE INSERÇÃO -> 'id' ou 'num'", "num" });
-            erros.Add("E11", new string[] { "ESPERA-SE INSERÇÃO -> ')' fecha parênteses", "FC_P" });
-            erros.Add("E12", new string[] { "ESPERA-SE INSERÇÃO -> 'entao'", "entao" });
-            erros.Add("E13", new string[] { "ESPERA-SE INSERÇÃO OPERADORES RELACIONAIS -> '<=' ou '>=' ou '<' ou '>' ou '=' ou '<>'", "opr" });
-            erros.Add("E14", new string[] { "ESPERA-SE INSERÇÃO -> 'varfim' ou 'id'", "varfim" });
-            erros.Add("E15", new string[] { "ESPERA-SE INSERÇÃO -> 'inteiro' ou 'real' ou 'literal'", "inteiro" });
-            erros.Add("E16", new string[] { "ESPERA-SE INSERÇÃO OPERADORES ARITMÉTICOS -> '+' ou '-' ou '*' ou '/'", "opm" });
+            erros.Add("E1", new string[] { "ESPERADO: 'inicio'", "inicio" });
+            erros.Add("E2", new string[] { "ESPERADO: 'varinicio'", "varinicio" });
+            erros.Add("E3", new string[] { "ESPERADO: 'id'", "id" });
+            erros.Add("E6", new string[] { "ESPERADO: '<-' (atribuição)", "rcb" });
+            erros.Add("E8", new string[] { "ESPERADO: '(' abre parênteses", "AB_P" });
+            erros.Add("E9", new string[] { "ESPERADO: ';' ponto e virgula", "PT_V" });
+            erros.Add("E10", new string[] { "ESPERADO: 'id' ou 'num'", "num" });
+            erros.Add("E11", new string[] { "ESPERADO: ')' fecha parênteses", "FC_P" });
+            erros.Add("E12", new string[] { "ESPERADO: 'entao'", "entao" });
+            erros.Add("E13", new string[] { "ESPERADO: '<=' ou '>=' ou '<' ou '>' ou '=' ou '<>'", "opr" });
+            erros.Add("E14", new string[] { "ESPERADO: 'varfim' ou 'id'", "varfim" });
+            erros.Add("E15", new string[] { "ESPERADO: 'inteiro' ou 'real' ou 'literal'", "inteiro" });
+            erros.Add("E16", new string[] { "ESPERADO: '+' ou '-' ou '*' ou '/'", "opm" });
 
-            //erros.Add("E17", new string[] { "ESPERA-SE INSERÇÃO -> 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fim'", "leia" });
-            // erros.Add("E5", new string[] { "ESPERA-SE INSERÇÃO -> 'literal' ou 'num' ou 'id'", "id" });
-            // erros.Add("E7", "ESPERA-SE INSERÇÃO -> 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fimse'");
+            erros.Add("E17", new string[] { "ESPERADO: 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fim'", "leia" });
+            erros.Add("E18", new string[] { "ESPERADO: 'literal' ou 'num' ou 'id'", "id" });
+            erros.Add("E19", new string[] { "ESPERADO: 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fimse'" , "fimse"});
 
-            return erros;
+            return (erros);
         }
 
-        private static Dictionary<int, string[]> Producoes()
+        private static Dictionary<int, string[]> Producoes() //Produções da Gramatica 
         {
             Dictionary<int, string[]> producoes = new Dictionary<int, string[]>();
             producoes.Add(1, new string[] { "P'", "P" });
@@ -160,17 +183,17 @@ namespace AnalisadorSintatico
             producoes.Add(29, new string[] { "CORPO", "fimse" });
             producoes.Add(30, new string[] { "A", "fim" });
 
-            return producoes;
+            return (producoes);
         }
 
         public static DataTable CarregaTabelaShiftReduce() //método para ler a tabela de transição, arquivo em excel
         {
-            string arquivoExcel = @"TabelaShiftReduce.xlsx";
+            string arquivoExcel = @"TabelaShiftReduce.xlsx"; // Abre o arquivo da tabela de Shift-Reduce
 
             DataTable Data_Table = new DataTable();
 
             //Pega o endereço do arquivo excel para abrir
-            string connectionString = "Provider=Microsoft.ACE.OLEDB.12.0; Data Source =" + arquivoExcel + "; Extended Properties = 'Excel 8.0;HDR=YES'";
+            string connectionString = "Provider=Microsoft.ACE.OLEDB.12.0; Data Source =" + arquivoExcel + "; Extended Properties = 'Excel 8.0;HDR=YES'"; //Pega o endereço do arquivo excel para abrir
             OleDbConnection conn = new OleDbConnection(connectionString);
             OleDbCommand cmd = new OleDbCommand();
             OleDbDataAdapter dataAdapter = new OleDbDataAdapter();
@@ -195,19 +218,19 @@ namespace AnalisadorSintatico
             return (Data_Table);
         }
 
-        private Simbolo CopiaSimbolo(Simbolo s)
+        private Simbolo CopiaSimbolo(Simbolo s) //copia o simbolo com o token atual para pilha
         {
             Simbolo simbolo = new Simbolo
             {
                 Token = s.Token,
-                ColunaDoERRO = s.ColunaDoERRO,
+                Coluna = s.Coluna,
                 DescricaoERRO = s.DescricaoERRO,
                 Lexema = s.Lexema,
-                LinhaDoERRO = s.LinhaDoERRO,
+                Linha = s.Linha,
                 Tipo = s.Tipo
             };
 
-            return simbolo;
+            return (simbolo);
         }
     }
 }

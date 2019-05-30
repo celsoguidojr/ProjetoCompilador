@@ -74,7 +74,6 @@ namespace AnalisadorSintatico
                             if (acao.Contains("ACC")) // ACEITA
                             {
                                 Console.WriteLine("P' -> P");
-                                Console.WriteLine("CADEIA ACEITA!");
                                 Console.ReadLine();
                                 break;
                             }
@@ -101,7 +100,6 @@ namespace AnalisadorSintatico
                 {
                     PrintErro(simbolo.DescricaoERRO, simbolo);
                     simbolo = analisadorLexico.RetornaToken();
-                   // break;
                 }
             }
             List<Simbolo> TabelaDeSimbolos = analisadorLexico.GetTabelaDeSimbolos();
@@ -134,19 +132,19 @@ namespace AnalisadorSintatico
             erros.Add("E6", new string[] { "ESPERADO: '<-' (atribuição)", "rcb" });
             erros.Add("E8", new string[] { "ESPERADO: '(' abre parênteses", "AB_P" });
             erros.Add("E9", new string[] { "ESPERADO: ';' ponto e virgula", "PT_V" });
-            erros.Add("E10", new string[] { "ESPERADO: 'id' ou 'num'", "num" });
             erros.Add("E11", new string[] { "ESPERADO: ')' fecha parênteses", "FC_P" });
             erros.Add("E12", new string[] { "ESPERADO: 'entao'", "entao" });
             erros.Add("E13", new string[] { "ESPERADO: '<=' ou '>=' ou '<' ou '>' ou '=' ou '<>'", "opr" });
-            erros.Add("E14", new string[] { "ESPERADO: 'varfim' ou 'id'", "varfim" });
             erros.Add("E15", new string[] { "ESPERADO: 'inteiro' ou 'real' ou 'literal'", "inteiro" });
             erros.Add("E16", new string[] { "ESPERADO: '+' ou '-' ou '*' ou '/'", "opm" });
-
+            
             erros.Add("E17", new string[] { "ESPERADO: 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fim'", "leia" });
             erros.Add("E18", new string[] { "ESPERADO: 'literal' ou 'num' ou 'id'", "id" });
             erros.Add("E19", new string[] { "ESPERADO: 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fimse'" , "fimse"});
+            erros.Add("E20", new string[] { "ESPERADO: 'id' ou 'num'", "num" });
+            erros.Add("E21", new string[] { "ESPERADO: 'varfim' ou 'id'", "varfim" });
 
-            return (erros);
+            return erros;
         }
 
         private static Dictionary<int, string[]> Producoes() //Produções da Gramatica 

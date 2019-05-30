@@ -22,7 +22,7 @@ namespace AnalisadorSintatico
 
         public void AnaliseSintatica()
         {
-            AnalisadorLexico.AnalisadorLexico analisadorLexico = new AnalisadorLexico.AnalisadorLexico(_codigoFonte);  //aqui é onde ele pega os tokens que o léxico envia
+            AnalisadorLexico.AnalisadorLexico analisadorLexico = new AnalisadorLexico.AnalisadorLexico(_codigoFonte);  //aqui é onde ele inicializa o analisador léxico
             _pilha.Push(0);                                   // Empilha o estado inicial na pilha
             int estado = 0;
             string acao = "";
@@ -30,9 +30,9 @@ namespace AnalisadorSintatico
             Simbolo simbolo = analisadorLexico.RetornaToken();
             Stack<Simbolo> pilhaDeSimbolos = new Stack<Simbolo>();
 
-            while (true)    // Inicio do procedimento de Shift - Reduce
+            while (true)    // Início do procedimento de Shift - Reduce
             {               //enquanto ele não aceitar ou dar erro ele não para a execução
-                if (simbolo.Token != "ERRO") //CASO NÃO SEJA RETORNARDO UM ERRO DO ANALISADOR LÉXICO
+                if (simbolo.Token != "ERRO") //CASO NÃO SEJA RETORNADO UM ERRO DO ANALISADOR LÉXICO
                 {
                     acao = _tabelaShiftReduce.Rows[estado][$"{simbolo.Token}"].ToString(); //captura a ação da tabela shift-reduce de acordo com o estado e com o simbolo
 
@@ -90,6 +90,7 @@ namespace AnalisadorSintatico
                                 else //SE O ERRO NÃO FOR TRATÁVEL A COMPILAÇÃO É PAUSADA
                                 {
                                     Erro(acao, simbolo);
+                                    Console.ReadLine();
                                     break;
                                 } 
                             }
@@ -98,11 +99,11 @@ namespace AnalisadorSintatico
                 }
                 else//EM CASO DE ERRO LÉXICO
                 {
-                    PrintErro(simbolo.DescricaoERRO, simbolo);
-                    simbolo = analisadorLexico.RetornaToken();
+                    PrintErro(simbolo.DescricaoERRO, simbolo); //Escreve o erro na tela 
+                    simbolo = analisadorLexico.RetornaToken(); //Busca o próximo token
                 }
             }
-            List<Simbolo> TabelaDeSimbolos = analisadorLexico.GetTabelaDeSimbolos();
+            List<Simbolo> TabelaDeSimbolos = analisadorLexico.GetTabelaDeSimbolos(); //busca a tabela de símbolos
         }
 
         private string[] Erro(string acao, Simbolo simbolo)  //verifica qual o tipo de erro mostra na tela o erro
@@ -118,8 +119,8 @@ namespace AnalisadorSintatico
         {
             Console.WriteLine("\n-------ERRO-------");
             int coluna = s.Coluna > 0 ? s.Coluna - 1 : 1;
-            Console.WriteLine($"Descrição: {descricao} \nLinha: {s.Linha+1}\nColuna: {coluna}");
-            Console.ReadLine();
+            Console.WriteLine($"Descrição: {descricao} \nLinha: {s.Linha+1}\nColuna: {coluna}\n");
+            //Console.ReadLine();
         }
 
         private static Dictionary<string, string[]> Erros()
@@ -134,7 +135,7 @@ namespace AnalisadorSintatico
             erros.Add("E9", new string[] { "ESPERADO: ';' ponto e virgula", "PT_V" });
             erros.Add("E11", new string[] { "ESPERADO: ')' fecha parênteses", "FC_P" });
             erros.Add("E12", new string[] { "ESPERADO: 'entao'", "entao" });
-            erros.Add("E13", new string[] { "ESPERADO: '<=' ou '>=' ou '<' ou '>' ou '=' ou '<>'", "opr" });
+            erros.Add("E13", new string[] { "ESPERADO:  '<' ou '>' ou '<=' ou '>=' ou '=' ou '<>'", "opr" });
             erros.Add("E15", new string[] { "ESPERADO: 'inteiro' ou 'real' ou 'literal'", "inteiro" });
             erros.Add("E16", new string[] { "ESPERADO: '+' ou '-' ou '*' ou '/'", "opm" });
             

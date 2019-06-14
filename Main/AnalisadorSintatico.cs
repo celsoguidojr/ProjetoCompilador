@@ -22,6 +22,7 @@ namespace Main
         public void AnaliseSintatica()
         {
             AnalisadorLexico analisadorLexico = new AnalisadorLexico(_codigoFonte);  //aqui é onde ele inicializa o analisador léxico
+            AnalisadorSemantico analisadorSemantico = new AnalisadorSemantico();
             _pilha.Push(0);                                   // Empilha o estado inicial na pilha
             int estado = 0;
             string acao = "";
@@ -48,7 +49,7 @@ namespace Main
                         {
                             simbolo.Token = guardaToken; //atualiza o token após o tratamento do erro
                             simbolo = pilhaDeSimbolos.Pop(); //atualiza com o simbolo da pilha
-                        }     
+                        }
                     }
                     else
                     {
@@ -67,6 +68,8 @@ namespace Main
                             estado = Convert.ToInt32(_tabelaShiftReduce.Rows[Convert.ToInt32(_pilha.Peek())][producao[0].ToString()]); //pula para o estado seguinte
                             _pilha.Push(estado);
                             Console.WriteLine($"{producao[0]} -> {producao[1]}");
+                            if (numProducao == 7)
+                                analisadorSemantico.AssociaRegraSemantica(numProducao, producao);
                         }
                         else
                         {
@@ -78,7 +81,7 @@ namespace Main
                             }
                             else //EM CASO DE ERRO SINTÁTICO
                             {
-                                if(Convert.ToInt32(acao.Substring(1)) < 16) //CASO O ERRO SEJA TRATÁVEL
+                                if (Convert.ToInt32(acao.Substring(1)) < 16) //CASO O ERRO SEJA TRATÁVEL
                                 {
                                     Simbolo s = CopiaSimbolo(simbolo);
                                     pilhaDeSimbolos.Push(s);  //cria uma nova pilha para guardar os tokens já lidos
@@ -91,7 +94,7 @@ namespace Main
                                     Erro(acao, simbolo);
                                     Console.ReadLine();
                                     break;
-                                } 
+                                }
                             }
                         }
                     }
@@ -118,7 +121,7 @@ namespace Main
         {
             Console.WriteLine("\n-------ERRO-------");
             int coluna = s.Coluna > 0 ? s.Coluna - 1 : 1;
-            Console.WriteLine($"Descrição: {descricao} \nLinha: {s.Linha+1}\nColuna: {coluna}\n");
+            Console.WriteLine($"Descrição: {descricao} \nLinha: {s.Linha + 1}\nColuna: {coluna}\n");
             //Console.ReadLine();
         }
 
@@ -137,10 +140,10 @@ namespace Main
             erros.Add("E13", new string[] { "ESPERADO:  '<' ou '>' ou '<=' ou '>=' ou '=' ou '<>'", "opr" });
             erros.Add("E15", new string[] { "ESPERADO: 'inteiro' ou 'real' ou 'literal'", "inteiro" });
             erros.Add("E16", new string[] { "ESPERADO: '+' ou '-' ou '*' ou '/'", "opm" });
-            
+
             erros.Add("E17", new string[] { "ESPERADO: 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fim'", "leia" });
             erros.Add("E18", new string[] { "ESPERADO: 'literal' ou 'num' ou 'id'", "id" });
-            erros.Add("E19", new string[] { "ESPERADO: 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fimse'" , "fimse"});
+            erros.Add("E19", new string[] { "ESPERADO: 'leia' ou 'escreva' ou 'id' ou 'se' ou 'fimse'", "fimse" });
             erros.Add("E20", new string[] { "ESPERADO: 'id' ou 'num'", "num" });
             erros.Add("E21", new string[] { "ESPERADO: 'varfim' ou 'id'", "varfim" });
 

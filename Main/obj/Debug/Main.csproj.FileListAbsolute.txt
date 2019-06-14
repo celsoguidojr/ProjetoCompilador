@@ -59,14 +59,7 @@ D:\01-UFG\Disciplinas\Compiladores1\TrabalhoT2\ProjetoCompilador\Main\obj\Debug\
 D:\01-UFG\Projetos\Compilador\Main\bin\Debug\Main.exe.config
 D:\01-UFG\Projetos\Compilador\Main\bin\Debug\Main.exe
 D:\01-UFG\Projetos\Compilador\Main\bin\Debug\Main.pdb
-D:\01-UFG\Projetos\Compilador\Main\bin\Debug\AnalisadorLexico.exe
-D:\01-UFG\Projetos\Compilador\Main\bin\Debug\AnalisadorSintatico.exe
-D:\01-UFG\Projetos\Compilador\Main\bin\Debug\AnalisadorLexico.pdb
-D:\01-UFG\Projetos\Compilador\Main\bin\Debug\AnalisadorLexico.exe.config
-D:\01-UFG\Projetos\Compilador\Main\bin\Debug\AnalisadorSintatico.pdb
-D:\01-UFG\Projetos\Compilador\Main\bin\Debug\AnalisadorSintatico.exe.config
 D:\01-UFG\Projetos\Compilador\Main\obj\Debug\Main.csprojAssemblyReference.cache
 D:\01-UFG\Projetos\Compilador\Main\obj\Debug\Main.csproj.CoreCompileInputs.cache
-D:\01-UFG\Projetos\Compilador\Main\obj\Debug\Main.csproj.CopyComplete
 D:\01-UFG\Projetos\Compilador\Main\obj\Debug\Main.exe
 D:\01-UFG\Projetos\Compilador\Main\obj\Debug\Main.pdb

@@ -157,6 +157,13 @@ namespace Main
                 s.DescricaoERRO = _descricaoERRO;
             }
 
+            switch(s.Token)
+            {
+                case "inteiro":
+                    s.Tipo = "inteiro";
+                    break;
+            }
+            
             s.Coluna = _coluna;
             s.Linha = _linha;
 

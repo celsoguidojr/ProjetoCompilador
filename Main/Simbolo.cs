@@ -16,6 +16,34 @@
 
         public int Coluna { get; set; }
 
-       
+
+        public Simbolo(string lexema, string token, object tipo)
+        {
+            this.Lexema = lexema;
+            this.Token = token;
+            this.Tipo = tipo;
+        }
+
+        public Simbolo()
+        {
+        }
+               
+        public Simbolo CopiaAtributos()
+        {
+            Simbolo novo = new Simbolo
+            {
+                Lexema = this.Lexema,
+                Coluna = this.Coluna,
+                Linha = this.Linha,
+                Tipo = this.Tipo,
+                Token = this.Token,
+                DescricaoERRO = this.DescricaoERRO
+
+            };
+
+            return novo;
+        }
     }
+
+  
 }

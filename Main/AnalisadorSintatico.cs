@@ -29,7 +29,7 @@ namespace Main
             string guardaToken = "";
             Simbolo simbolo = analisadorLexico.RetornaToken();
             Stack<Simbolo> pilhaDeSimbolos = new Stack<Simbolo>();
-
+            List<Simbolo> TabelaDeSimbolos = analisadorLexico.GetTabelaDeSimbolos();
             while (true)    // Início do procedimento de Shift - Reduce
             {               //enquanto ele não aceitar ou dar erro ele não para a execução
                 if (simbolo.Token != "ERRO") //CASO NÃO SEJA RETORNADO UM ERRO DO ANALISADOR LÉXICO
@@ -40,7 +40,7 @@ namespace Main
                     {
                         estado = Convert.ToInt32(acao.Substring(1));
                         _pilha.Push(estado);
-
+                        analisadorSemantico._pilhaSemantica.Push(simbolo);
                         if (pilhaDeSimbolos.Count == 0)
                         {
                             simbolo = analisadorLexico.RetornaToken(); //atualiza o simbolo com o token retornado do léxico
@@ -68,8 +68,10 @@ namespace Main
                             estado = Convert.ToInt32(_tabelaShiftReduce.Rows[Convert.ToInt32(_pilha.Peek())][producao[0].ToString()]); //pula para o estado seguinte
                             _pilha.Push(estado);
                             Console.WriteLine($"{producao[0]} -> {producao[1]}");
-                            if (numProducao == 7)
-                                analisadorSemantico.AssociaRegraSemantica(numProducao, producao);
+
+
+                            TabelaDeSimbolos = analisadorLexico.GetTabelaDeSimbolos();
+                            analisadorSemantico.AssociaRegraSemantica(numProducao, TabelaDeSimbolos);
                         }
                         else
                         {
@@ -105,7 +107,7 @@ namespace Main
                     simbolo = analisadorLexico.RetornaToken(); //Busca o próximo token
                 }
             }
-            List<Simbolo> TabelaDeSimbolos = analisadorLexico.GetTabelaDeSimbolos(); //busca a tabela de símbolos
+
         }
 
         private string[] Erro(string acao, Simbolo simbolo)  //verifica qual o tipo de erro mostra na tela o erro

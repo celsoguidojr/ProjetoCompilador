@@ -92,13 +92,13 @@ namespace Main
 
                         s = PreencheAtributos(s, _tipo_de_erro); //Verifica se ocorreu algum erro de caracter inválido durante a leitura
 
-                        return (s);
+                        return s;
                     }
                     else
                     {
                         s = PreencheAtributos(s, _tipo_de_erro);//Verifica se ocorreu algum erro de caracter inválido durante a leitura
 
-                        return (s);
+                        return s;
                     }
                 }
 
@@ -130,7 +130,7 @@ namespace Main
             //        Console.WriteLine($@"Token: {s.Token} Descrição: {s.DescricaoERRO} Linha: {s.Linha} Coluna: {s.Coluna}");
             //}
 
-            return (simb);
+            return simb;
         }
 
         private Simbolo CriaErro(int codErro)
@@ -155,19 +155,35 @@ namespace Main
                 string _descricaoERRO = "";
                 TiposErros.TryGetValue(cod_erro, out _descricaoERRO);
                 s.DescricaoERRO = _descricaoERRO;
+                s.Coluna = _coluna;
+                s.Linha = _linha;
+
+                return s;
             }
 
-            switch(s.Token)
+            switch (s.Token)
             {
-                case "inteiro":
-                    s.Tipo = "inteiro";
+                case "num":
+                    s.Tipo = "int";
+                    break;
+                case "lit":
+                    s.Tipo = "literal";
+                    break;
+                case "opm":
+                    s.Tipo = s.Lexema;
+                    break;
+                case "rcb":
+                    s.Tipo = "=";
+                    break;
+                case "opr":
+                    s.Tipo = s.Lexema;
                     break;
             }
-            
+
             s.Coluna = _coluna;
             s.Linha = _linha;
 
-            return (s);
+            return s;
         }
 
         private void ModificaLinhaColuna()  // altera o valor da coluna e da linha de acordo com o caractere
@@ -303,21 +319,21 @@ namespace Main
             {
                 Lexema = "inteiro",
                 Token = "inteiro",
-                Tipo = "inteiro"
+                Tipo = "int"
             };
 
             var lit = new Simbolo()
             {
                 Lexema = "lit",
                 Token = "lit",
-                Tipo = "lit"
+                Tipo = "literal"
             };
 
             var real = new Simbolo()
             {
                 Lexema = "real",
                 Token = "real",
-                Tipo = "real"
+                Tipo = "double"
             };
 
             TabelaDeSimbolos.Add(inicio.Lexema, inicio);

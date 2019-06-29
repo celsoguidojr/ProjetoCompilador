@@ -78,7 +78,9 @@ namespace Main
                             if (acao.Contains("ACC")) // ACEITA
                             {
                                 Console.WriteLine("P' -> P");
+                                analisadorSemantico.FinalizaArquivoObj();
                                 Console.ReadLine();
+                                
                                 break;
                             }
                             else //EM CASO DE ERRO SINTÁTICO
@@ -107,6 +109,7 @@ namespace Main
                     simbolo = analisadorLexico.RetornaToken(); //Busca o próximo token
                 }
             }
+            
 
         }
 

@@ -12,6 +12,7 @@ namespace Main
     {
         public Stack<Simbolo> _pilhaSemantica = new Stack<Simbolo>();
         private static string _caminhoNome = ".\\obj.txt";
+        private static List<string> _listaTemporarios = new List<string>();
         int count = 0;
 
         public AnalisadorSemantico()
@@ -24,6 +25,7 @@ namespace Main
             Simbolo s = new Simbolo();
             Simbolo simboloNaoterminal = new Simbolo();
             StreamWriter x = File.AppendText(_caminhoNome);
+
             Simbolo tipo;
             Simbolo arg;
             Simbolo oprd;
@@ -124,6 +126,7 @@ namespace Main
                     Simbolo oprd2 = _pilhaSemantica.Pop();
                     if (oprd1.Tipo == oprd2.Tipo)
                     {
+                        _listaTemporarios.Add($"T{count}");
                         Simbolo LD = new Simbolo($"T{count++}", "LD", "LD");
                         x.WriteLine($"{LD.Lexema} = {oprd2.Lexema} {opm.Tipo} {oprd1.Lexema};");
                     }
@@ -166,6 +169,7 @@ namespace Main
                     Simbolo oprnd2 = _pilhaSemantica.Pop();
                     if (oprnd1.Tipo == oprnd2.Tipo)
                     {
+                        _listaTemporarios.Add($"T{count}");
                         Simbolo exp_r = new Simbolo($"T{count++}", "tx", "tx");
                         x.WriteLine($"{exp_r.Lexema} = {oprnd2.Lexema} {opr.Tipo} {oprnd1.Lexema};");
                         _pilhaSemantica.Push(exp_r);
@@ -192,6 +196,33 @@ namespace Main
             {
                 File.Delete(_caminhoNome);
             }
+        }
+
+        public void FinalizaArquivoObj()
+        {
+            string textoCompleto = File.ReadAllText(_caminhoNome);
+            StringBuilder stringBuilder = new StringBuilder();
+            //Cabeçalho
+            stringBuilder.AppendLine("#include<stdio.h>");
+            stringBuilder.AppendLine("typedef char literal[256];");
+            stringBuilder.AppendLine("void main(void)\n{");
+            stringBuilder.AppendLine("/*-----Variaveis temporarias-----*/");
+            int i = 0;
+            while (i < _listaTemporarios.Count)
+            {
+                stringBuilder.AppendLine($"int {_listaTemporarios[i]};");
+                i++;
+            }
+            stringBuilder.AppendLine("/*---------------------------*/");
+            File.Delete(_caminhoNome);
+            EscreveNoObj($"{stringBuilder}{textoCompleto}}}");
+        }
+
+        private void EscreveNoObj(string texto)
+        {
+            StreamWriter x = File.AppendText(_caminhoNome);
+            x.WriteLine($"{texto}");
+            x.Close();
         }
     }
 

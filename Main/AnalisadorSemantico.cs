@@ -13,23 +13,23 @@ namespace Main
         public Stack<Simbolo> _pilhaSemantica = new Stack<Simbolo>();
         private static string _caminhoNome = ".\\obj.txt";
         private static List<string> _listaTemporarios = new List<string>();
-        int count = 0;
+        int countTemp = 0;
 
         public AnalisadorSemantico()
         {
-            CriaArquivoObjeto();
+            DeletaArquivoObj();
         }
 
-        public void AssociaRegraSemantica(int numProducao, List<Simbolo> tabelaDeSimbolos)
+        public void AssociaRegraSemantica(int numProducao, List<Simbolo> tabelaDeSimbolos, out bool _houveErro)
         {
             Simbolo s = new Simbolo();
             Simbolo simboloNaoterminal = new Simbolo();
             StreamWriter x = File.AppendText(_caminhoNome);
-
             Simbolo tipo;
             Simbolo arg;
             Simbolo oprd;
             Simbolo ld;
+            _houveErro = false;
             switch (numProducao)
             {
                 case 5:
@@ -78,7 +78,10 @@ namespace Main
                         }
                     }
                     else
-                        Console.WriteLine("ERRO: Variável não declarada.");
+                    {
+                        _houveErro = true;
+                        s.DescricaoERRO = "Variável não declarada.";
+                    }
                     break;
                 case 12:
                     _pilhaSemantica.Pop();
@@ -103,7 +106,10 @@ namespace Main
                         _pilhaSemantica.Push(arg);
                     }
                     else
-                        Console.WriteLine("ERRO: Variável não declarada.");
+                    {
+                        _houveErro = true;
+                        s.DescricaoERRO = "Variável não declarada.";
+                    }
                     break;
                 case 17:
                     _pilhaSemantica.Pop();
@@ -115,10 +121,18 @@ namespace Main
                         if (num.Tipo == id.Tipo)
                             x.WriteLine($"{id.Lexema} {rcb.Tipo} {num.Lexema};");
                         else
-                            Console.WriteLine("ERRO: Tipos diferentes para atribuição.");
+                        {
+                            _houveErro = true;
+                            id.DescricaoERRO = "Tipos diferentes para atribuição.";
+                            num.DescricaoERRO = id.DescricaoERRO;
+                        }
                     }
                     else
-                        Console.WriteLine("ERRO: Variável não declarada.");
+                    {
+                        _houveErro = true;
+                        id.DescricaoERRO = "Variável não declarada.";
+                        num.DescricaoERRO = id.DescricaoERRO;
+                    }
                     break;
                 case 18:
                     Simbolo oprd1 = _pilhaSemantica.Pop();
@@ -126,12 +140,16 @@ namespace Main
                     Simbolo oprd2 = _pilhaSemantica.Pop();
                     if (oprd1.Tipo == oprd2.Tipo)
                     {
-                        _listaTemporarios.Add($"T{count}");
-                        Simbolo LD = new Simbolo($"T{count++}", "LD", "LD");
+                        _listaTemporarios.Add($"T{countTemp}");
+                        Simbolo LD = new Simbolo($"T{countTemp++}", "LD", "LD");
                         x.WriteLine($"{LD.Lexema} = {oprd2.Lexema} {opm.Tipo} {oprd1.Lexema};");
                     }
                     else
-                        Console.WriteLine("ERRO: Operandos com tipos incompatíveis.");
+                    {
+                        _houveErro = true;
+                        oprd1.DescricaoERRO = "Operandos com tipos incompatíveis.";
+                        oprd2.DescricaoERRO = oprd1.DescricaoERRO;
+                    }
                     break;
                 case 19:
                     s = _pilhaSemantica.Pop();
@@ -147,7 +165,10 @@ namespace Main
                         _pilhaSemantica.Push(oprd);
                     }
                     else
-                        Console.WriteLine("ERRO: Variável não declarada.");
+                    {
+                        _houveErro = true;
+                        s.DescricaoERRO = "Variável não declarada.";
+                    }
                     break;
                 case 21:
                     s = _pilhaSemantica.Pop();
@@ -169,28 +190,24 @@ namespace Main
                     Simbolo oprnd2 = _pilhaSemantica.Pop();
                     if (oprnd1.Tipo == oprnd2.Tipo)
                     {
-                        _listaTemporarios.Add($"T{count}");
-                        Simbolo exp_r = new Simbolo($"T{count++}", "tx", "tx");
+                        _listaTemporarios.Add($"T{countTemp}");
+                        Simbolo exp_r = new Simbolo($"T{countTemp++}", "tx", "tx");
                         x.WriteLine($"{exp_r.Lexema} = {oprnd2.Lexema} {opr.Tipo} {oprnd1.Lexema};");
                         _pilhaSemantica.Push(exp_r);
                     }
                     else
-                        Console.WriteLine("ERRO: Operandos com tipos incompatíveis.");
+                    {
+                        _houveErro = true;
+                        oprnd1.DescricaoERRO = "Operandos com tipos incompatíveis.";
+                        oprnd2.DescricaoERRO = oprnd1.DescricaoERRO;
+                    }
                     break;
             }
 
             x.Close();
         }
 
-        private Simbolo CriaSimboloNaoTerminal(string tipo)
-        {
-            Simbolo simboloNaoterminal = new Simbolo();
-            simboloNaoterminal.Tipo = tipo;
-
-            return simboloNaoterminal;
-        }
-
-        private static void CriaArquivoObjeto()
+        public void DeletaArquivoObj()
         {
             if (File.Exists(_caminhoNome))
             {
@@ -215,13 +232,8 @@ namespace Main
             }
             stringBuilder.AppendLine("/*---------------------------*/");
             File.Delete(_caminhoNome);
-            EscreveNoObj($"{stringBuilder}{textoCompleto}}}");
-        }
-
-        private void EscreveNoObj(string texto)
-        {
             StreamWriter x = File.AppendText(_caminhoNome);
-            x.WriteLine($"{texto}");
+            x.WriteLine($"{stringBuilder}{textoCompleto}}}");
             x.Close();
         }
     }

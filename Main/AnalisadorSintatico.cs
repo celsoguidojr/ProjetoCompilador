@@ -13,6 +13,7 @@ namespace Main
         private Dictionary<int, string[]> _producoes = Producoes();
         private Dictionary<string, string[]> _erros = Erros();
         private static DataTable _tabelaShiftReduce = CarregaTabelaShiftReduce();
+        bool _houveErro = false;
 
         public AnalisadorSintatico(string codigoFonte)          // Instância o analisador léxico tendo como parametro o código fonte.
         {
@@ -35,7 +36,7 @@ namespace Main
                 if (simbolo.Token != "ERRO") //CASO NÃO SEJA RETORNADO UM ERRO DO ANALISADOR LÉXICO
                 {
                     acao = _tabelaShiftReduce.Rows[estado][$"{simbolo.Token}"].ToString(); //captura a ação da tabela shift-reduce de acordo com o estado e com o simbolo
-
+    
                     if (acao.Contains("S"))  //EMPILHA 
                     {
                         estado = Convert.ToInt32(acao.Substring(1));
@@ -69,18 +70,26 @@ namespace Main
                             _pilha.Push(estado);
                             Console.WriteLine($"{producao[0]} -> {producao[1]}");
 
-
-                            TabelaDeSimbolos = analisadorLexico.GetTabelaDeSimbolos();
-                            analisadorSemantico.AssociaRegraSemantica(numProducao, TabelaDeSimbolos);
+                            if (_houveErro == false)
+                            {
+                                TabelaDeSimbolos = analisadorLexico.GetTabelaDeSimbolos();
+                                analisadorSemantico.AssociaRegraSemantica(numProducao, TabelaDeSimbolos, out _houveErro);
+                                if (_houveErro)
+                                    PrintErro(simbolo.DescricaoERRO, simbolo);
+                            }
+                            else
+                            {
+                                analisadorSemantico.DeletaArquivoObj();
+                            }
                         }
                         else
                         {
                             if (acao.Contains("ACC")) // ACEITA
                             {
                                 Console.WriteLine("P' -> P");
-                                analisadorSemantico.FinalizaArquivoObj();
+                                if (_houveErro == false)
+                                    analisadorSemantico.FinalizaArquivoObj();
                                 Console.ReadLine();
-                                
                                 break;
                             }
                             else //EM CASO DE ERRO SINTÁTICO
@@ -109,8 +118,6 @@ namespace Main
                     simbolo = analisadorLexico.RetornaToken(); //Busca o próximo token
                 }
             }
-            
-
         }
 
         private string[] Erro(string acao, Simbolo simbolo)  //verifica qual o tipo de erro mostra na tela o erro
@@ -124,10 +131,10 @@ namespace Main
 
         private void PrintErro(string descricao, Simbolo s = null)
         {
+            _houveErro = true;
             Console.WriteLine("\n-------ERRO-------");
             int coluna = s.Coluna > 0 ? s.Coluna - 1 : 1;
             Console.WriteLine($"Descrição: {descricao} \nLinha: {s.Linha + 1}\nColuna: {coluna}\n");
-            //Console.ReadLine();
         }
 
         private static Dictionary<string, string[]> Erros()

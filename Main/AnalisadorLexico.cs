@@ -164,7 +164,10 @@ namespace Main
             switch (s.Token)
             {
                 case "num":
-                    s.Tipo = "int";
+                    if (s.Lexema.Contains("."))
+                        s.Tipo = "double";
+                    else
+                        s.Tipo = "int";
                     break;
                 case "lit":
                     s.Tipo = "literal";

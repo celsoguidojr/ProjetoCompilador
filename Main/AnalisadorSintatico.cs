@@ -50,6 +50,7 @@ namespace Main
                             simbolo.Token = guardaToken; //atualiza o token após o tratamento do erro
                             simbolo = pilhaDeSimbolos.Pop(); //atualiza com o simbolo da pilha
                         }
+                        
                     }
                     else
                     {
@@ -68,7 +69,9 @@ namespace Main
                             estado = Convert.ToInt32(_tabelaShiftReduce.Rows[Convert.ToInt32(_pilha.Peek())][producao[0].ToString()]); //pula para o estado seguinte
                             _pilha.Push(estado);
                             Console.WriteLine($"{producao[0]} -> {producao[1]}");
-
+                            var x = simbolo;
+                            if (x.Lexema == "5.0")
+                                x = new Simbolo();
 
                             TabelaDeSimbolos = analisadorLexico.GetTabelaDeSimbolos();
                             analisadorSemantico.AssociaRegraSemantica(numProducao, TabelaDeSimbolos);

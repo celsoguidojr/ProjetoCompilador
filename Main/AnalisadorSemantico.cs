@@ -127,7 +127,8 @@ namespace Main
                     if (oprd1.Tipo == oprd2.Tipo)
                     {
                         _listaTemporarios.Add($"T{count}");
-                        Simbolo LD = new Simbolo($"T{count++}", "LD", "LD");
+                        Simbolo LD = new Simbolo($"T{count++}", "LD", oprd1.Tipo);
+                        _pilhaSemantica.Push(LD);
                         x.WriteLine($"{LD.Lexema} = {oprd2.Lexema} {opm.Tipo} {oprd1.Lexema};");
                     }
                     else

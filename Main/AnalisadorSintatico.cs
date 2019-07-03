@@ -11,6 +11,7 @@ namespace Main
         string _codigoFonte;
         private Stack<int> _pilha = new Stack<int>();
         private Dictionary<int, string[]> _producoes = Producoes();
+        private Dictionary<int, List<string>> _tokensDeSincronizacao = TokensDeSincronizacao();
         private Dictionary<string, string[]> _erros = Erros();
         private static DataTable _tabelaShiftReduce = CarregaTabelaShiftReduce();
         bool _houveErro = false;
@@ -108,8 +109,14 @@ namespace Main
                                 else //SE O ERRO NÃO FOR TRATÁVEL A COMPILAÇÃO É PAUSADA
                                 {
                                     Erro(acao, simbolo);
-                                    Console.ReadLine();
-                                    break;
+                                    var listaDeTokens = new List<string>();
+                                    _tokensDeSincronizacao.TryGetValue(_pilha.Peek(), out listaDeTokens);
+                                    var simb = analisadorLexico.RetornaToken();
+
+                                    while (!listaDeTokens.Contains(simb.Token))
+                                        simb = analisadorLexico.RetornaToken();
+
+                                    simbolo = simb;
                                 }
                             }
                         }
@@ -164,6 +171,58 @@ namespace Main
 
             return erros;
         }
+
+        private static Dictionary<int, List<string>> TokensDeSincronizacao()
+        {
+            Dictionary<int, List<string>> conjuntoTokens = new Dictionary<int, List<string>>();
+            var listaTokens = new List<string>();
+            listaTokens.Add("leia");
+            listaTokens.Add("escreva");
+            listaTokens.Add("id");
+            listaTokens.Add("se");
+            listaTokens.Add("fim");
+            listaTokens.Add("fimse");
+            conjuntoTokens.Add(3, listaTokens);
+            conjuntoTokens.Add(6, listaTokens);
+            conjuntoTokens.Add(7, listaTokens);
+            conjuntoTokens.Add(8, listaTokens);
+            listaTokens = new List<string>();
+            listaTokens.Add("id");
+            listaTokens.Add("varfim");
+            conjuntoTokens.Add(4, listaTokens);
+            conjuntoTokens.Add(24, listaTokens);
+            listaTokens = new List<string>();
+            listaTokens.Add("leia");
+            listaTokens.Add("escreva");
+            listaTokens.Add("id");
+            listaTokens.Add("se");
+            listaTokens.Add("fimse");
+            conjuntoTokens.Add(13, listaTokens);
+            conjuntoTokens.Add(19, listaTokens);
+            conjuntoTokens.Add(20, listaTokens);
+            conjuntoTokens.Add(21, listaTokens);
+            listaTokens = new List<string>();
+            listaTokens.Add("id");
+            listaTokens.Add("num");
+            conjuntoTokens.Add(37, listaTokens);
+            conjuntoTokens.Add(38, listaTokens);
+            conjuntoTokens.Add(43, listaTokens);
+            conjuntoTokens.Add(55, listaTokens);
+            listaTokens = new List<string>();
+            listaTokens.Add("pt_v");
+            listaTokens.Add("opm");
+            conjuntoTokens.Add(40, listaTokens);
+
+            listaTokens = new List<string>();
+            listaTokens.Add("id");
+            listaTokens.Add("literal");
+            listaTokens.Add("num");
+            conjuntoTokens.Add(17, listaTokens);
+
+
+            return conjuntoTokens;
+        }
+
 
         private static Dictionary<int, string[]> Producoes() //Produções da Gramatica 
         {

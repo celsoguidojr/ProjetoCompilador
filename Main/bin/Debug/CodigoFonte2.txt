@@ -11,7 +11,7 @@ leia B;
 escreva "Digite A:";  
 leia A;
 
-se (B > 2)
+se ( > 2)
 	entao
 	se (B <= 4)
 		entao
@@ -21,7 +21,7 @@ fimse
 	B <- B + 1;
 	B <- B + 2;
 	B <- B + 3;
-	C <- 5.0;
+	C <- C + 5.0;
 	escreva "\nRESULTADO FINAL: B=\n";
 	escreva D;
 	escreva "\n";

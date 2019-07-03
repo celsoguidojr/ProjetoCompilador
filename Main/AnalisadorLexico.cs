@@ -26,8 +26,6 @@ namespace Main
         int _colunaDaEntrada = 0;
         int _linhaAnterior = 0;
         string _codigoFonte;
-        int _contador_de_Erros = 0;
-        int _contadorDeSimbolos = 0;
         List<Simbolo> _listaDeErros = new List<Simbolo>();
         static Dictionary<string, Simbolo> PalavrasChave = Palavras_Chave();
         Dictionary<string, int> SimbolosValidos = Simbolos_Validos();
@@ -124,29 +122,8 @@ namespace Main
                 PreencheAtributos(simb, _tipo_de_erro);
             }
 
-            //if (_contador_de_Erros != 0)
-            //{
-            //    foreach (Simbolo s in _listaDeErros)
-            //        Console.WriteLine($@"Token: {s.Token} Descrição: {s.DescricaoERRO} Linha: {s.Linha} Coluna: {s.Coluna}");
-            //}
-
             return simb;
         }
-
-        private Simbolo CriaErro(int codErro)
-        {
-            //Informações necessárias para a criação de um erro
-            Simbolo s = new Simbolo();
-
-            string _descricaoERRO = "";
-            s.Linha = ++_linha;
-            s.Coluna = _coluna;
-            TiposErros.TryGetValue(codErro, out _descricaoERRO);
-            s.DescricaoERRO = _descricaoERRO;
-
-            return (s);
-        }
-
 
         private Simbolo PreencheAtributos(Simbolo s, int cod_erro)
         {

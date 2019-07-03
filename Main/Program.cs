@@ -8,7 +8,7 @@ namespace Main
     {
         static void Main(string[] args)
         {
-            var codigoFonte = File.ReadAllText(@"CodigoFonte.txt");  // Transforma o arquivo todo em string
+            var codigoFonte = File.ReadAllText(@"CodigoFonte2.txt");  // Transforma o arquivo todo em string
             codigoFonte = codigoFonte.Replace(' ', '\r');
 
             var analisadorSintatico = new AnalisadorSintatico(codigoFonte);

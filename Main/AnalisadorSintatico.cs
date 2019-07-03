@@ -36,7 +36,7 @@ namespace Main
                 if (simbolo.Token != "ERRO") //CASO NÃO SEJA RETORNADO UM ERRO DO ANALISADOR LÉXICO
                 {
                     acao = _tabelaShiftReduce.Rows[estado][$"{simbolo.Token}"].ToString(); //captura a ação da tabela shift-reduce de acordo com o estado e com o simbolo
-    
+
                     if (acao.Contains("S"))  //EMPILHA 
                     {
                         estado = Convert.ToInt32(acao.Substring(1));
@@ -51,7 +51,6 @@ namespace Main
                             simbolo.Token = guardaToken; //atualiza o token após o tratamento do erro
                             simbolo = pilhaDeSimbolos.Pop(); //atualiza com o simbolo da pilha
                         }
-                        
                     }
                     else
                     {
@@ -74,9 +73,12 @@ namespace Main
                             if (_houveErro == false)
                             {
                                 TabelaDeSimbolos = analisadorLexico.GetTabelaDeSimbolos();
-                                analisadorSemantico.AssociaRegraSemantica(numProducao, TabelaDeSimbolos, out _houveErro);
+                                var simboloComErro = analisadorSemantico.AssociaRegraSemantica(numProducao, TabelaDeSimbolos, out _houveErro);
                                 if (_houveErro)
-                                    PrintErro(simbolo.DescricaoERRO, simbolo);
+                                {
+                                    PrintErro(simboloComErro.DescricaoERRO, simboloComErro);
+                                }
+
                             }
                             else
                             {

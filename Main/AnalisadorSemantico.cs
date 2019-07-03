@@ -20,7 +20,7 @@ namespace Main
             DeletaArquivoObj();
         }
 
-        public void AssociaRegraSemantica(int numProducao, List<Simbolo> tabelaDeSimbolos, out bool _houveErro)
+        public Simbolo AssociaRegraSemantica(int numProducao, List<Simbolo> tabDeSimbolos, out bool _houveErro)
         {
             Simbolo s = new Simbolo();
             Simbolo simboloNaoterminal = new Simbolo();
@@ -29,7 +29,9 @@ namespace Main
             Simbolo arg;
             Simbolo oprd;
             Simbolo ld;
+
             _houveErro = false;
+            var tabelaDeSimbolos = tabDeSimbolos;
             switch (numProducao)
             {
                 case 5:
@@ -123,15 +125,15 @@ namespace Main
                         else
                         {
                             _houveErro = true;
-                            id.DescricaoERRO = "Tipos diferentes para atribuição.";
-                            num.DescricaoERRO = id.DescricaoERRO;
+                            s = id.CopiaAtributos();
+                            s.DescricaoERRO = "Tipos diferentes para atribuição.";
                         }
                     }
                     else
                     {
                         _houveErro = true;
-                        id.DescricaoERRO = "Variável não declarada.";
-                        num.DescricaoERRO = id.DescricaoERRO;
+                        s = id.CopiaAtributos();
+                        s.DescricaoERRO = "Variável não declarada.";
                     }
                     break;
                 case 18:
@@ -140,16 +142,16 @@ namespace Main
                     Simbolo oprd2 = _pilhaSemantica.Pop();
                     if (oprd1.Tipo == oprd2.Tipo)
                     {
-                        _listaTemporarios.Add($"T{count}");
-                        Simbolo LD = new Simbolo($"T{count++}", "LD", oprd1.Tipo);
+                        _listaTemporarios.Add($"T{countTemp}");
+                        Simbolo LD = new Simbolo($"T{countTemp++}", "LD", oprd1.Tipo);
                         _pilhaSemantica.Push(LD);
                         x.WriteLine($"{LD.Lexema} = {oprd2.Lexema} {opm.Tipo} {oprd1.Lexema};");
                     }
                     else
                     {
                         _houveErro = true;
-                        oprd1.DescricaoERRO = "Operandos com tipos incompatíveis.";
-                        oprd2.DescricaoERRO = oprd1.DescricaoERRO;
+                        s = oprd1.CopiaAtributos();
+                        s.DescricaoERRO = "Operandos com tipos incompatíveis.";
                     }
                     break;
                 case 19:
@@ -199,13 +201,14 @@ namespace Main
                     else
                     {
                         _houveErro = true;
-                        oprnd1.DescricaoERRO = "Operandos com tipos incompatíveis.";
-                        oprnd2.DescricaoERRO = oprnd1.DescricaoERRO;
+                        s = oprnd1.CopiaAtributos();
+                        s.DescricaoERRO = "Operandos com tipos incompatíveis.";
                     }
                     break;
             }
 
             x.Close();
+            return s;
         }
 
         public void DeletaArquivoObj()

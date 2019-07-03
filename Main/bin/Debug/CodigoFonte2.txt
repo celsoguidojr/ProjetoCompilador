@@ -21,7 +21,6 @@ fimse
 	B <- B + 1;
 	B <- B + 2;
 	B <- B + 3;
-	D <- B;
 	C <- 5.0;
 	escreva "\nRESULTADO FINAL: B=\n";
 	escreva D;

@@ -12,7 +12,7 @@ namespace Main
     {
         public Stack<Simbolo> _pilhaSemantica = new Stack<Simbolo>();
         private static string _caminhoNome = ".\\obj.txt";
-        private static List<string> _listaTemporarios = new List<string>();
+        private static List<VariavelTemporaria> _listaTemporarios = new List<VariavelTemporaria>();
         int countTemp = 0;
 
         public AnalisadorSemantico()
@@ -142,7 +142,8 @@ namespace Main
                     Simbolo oprd2 = _pilhaSemantica.Pop();
                     if (oprd1.Tipo == oprd2.Tipo)
                     {
-                        _listaTemporarios.Add($"T{countTemp}");
+                        var temp = new VariavelTemporaria($"T{countTemp}", oprd1.Tipo.ToString());
+                        _listaTemporarios.Add(temp);
                         Simbolo LD = new Simbolo($"T{countTemp++}", "LD", oprd1.Tipo);
                         _pilhaSemantica.Push(LD);
                         x.WriteLine($"{LD.Lexema} = {oprd2.Lexema} {opm.Tipo} {oprd1.Lexema};");
@@ -193,7 +194,8 @@ namespace Main
                     Simbolo oprnd2 = _pilhaSemantica.Pop();
                     if (oprnd1.Tipo == oprnd2.Tipo)
                     {
-                        _listaTemporarios.Add($"T{countTemp}");
+                        var temp = new VariavelTemporaria($"T{countTemp}", oprnd1.Tipo.ToString());
+                        _listaTemporarios.Add(temp);
                         Simbolo exp_r = new Simbolo($"T{countTemp++}", "tx", "tx");
                         x.WriteLine($"{exp_r.Lexema} = {oprnd2.Lexema} {opr.Tipo} {oprnd1.Lexema};");
                         _pilhaSemantica.Push(exp_r);
@@ -231,7 +233,7 @@ namespace Main
             int i = 0;
             while (i < _listaTemporarios.Count)
             {
-                stringBuilder.AppendLine($"int {_listaTemporarios[i]};");
+                stringBuilder.AppendLine($"{_listaTemporarios[i].tipo} {_listaTemporarios[i].nome};");
                 i++;
             }
             stringBuilder.AppendLine("/*---------------------------*/");
@@ -240,6 +242,19 @@ namespace Main
             x.WriteLine($"{stringBuilder}{textoCompleto}}}");
             x.Close();
         }
+
+        private class VariavelTemporaria
+        {
+            public string nome;
+            public string tipo;
+
+            public VariavelTemporaria(string nome, string tipo)
+            {
+                this.nome = nome;
+                this.tipo = tipo;
+            }
+        };
+
     }
 
 

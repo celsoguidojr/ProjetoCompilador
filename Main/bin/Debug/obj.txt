@@ -8,6 +8,7 @@ int T1;
 int T2;
 int T3;
 int T4;
+double T5;
 /*---------------------------*/
 literal A;
 int B;
@@ -33,8 +34,8 @@ T3 = B + 2;
 B = T3;
 T4 = B + 3;
 B = T4;
-D = B;
-C = 5.0;
+T5 = C + 5.0;
+C = T5;
 printf("\nRESULTADO FINAL: B=\n");
 printf(D);
 printf("\n");

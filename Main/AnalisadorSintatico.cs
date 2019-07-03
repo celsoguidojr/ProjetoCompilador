@@ -134,7 +134,7 @@ namespace Main
         {
             string[] erro;
             _erros.TryGetValue(acao, out erro);
-            simbolo.Coluna = simbolo.Coluna - 1; //AJUSTE DO PONTEIRO
+            simbolo.Coluna = simbolo.Coluna - 2; //AJUSTE DO PONTEIRO
             PrintErro(erro[0], simbolo);
             return (erro); //retorna o erro para tratamento
         }
@@ -143,7 +143,7 @@ namespace Main
         {
             _houveErro = true;
             Console.WriteLine("\n-------ERRO-------");
-            int coluna = s.Coluna > 0 ? s.Coluna - 1 : 1;
+            int coluna = s.Coluna > 0 ? s.Coluna - 2 : 1;
             Console.WriteLine($"Descrição: {descricao} \nLinha: {s.Linha + 1}\nColuna: {coluna}\n");
         }
 

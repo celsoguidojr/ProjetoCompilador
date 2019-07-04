@@ -2,7 +2,7 @@ inicio
 varinicio
 	A lit;
 	B inteiro;
-	@D inteiro;
+	D inteiro;
 	C real;
 varfim;	
 escreva "Digite B:";
@@ -17,9 +17,10 @@ se (B > 2)
 		escreva "B esta entre 2 e 4";
 	fimse
 fimse
-	 <- B + 1;
+	B <- B + 1;
 	B <- B + 2;
 	B <- B + 3;
+	D <- B;
 	C <- C + 5.0;
 	escreva "\nRESULTADO FINAL: B=\n";
 	escreva D;

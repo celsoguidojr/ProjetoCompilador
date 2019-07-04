@@ -88,7 +88,26 @@ namespace Main
                 case 12:
                     _pilhaSemantica.Pop();
                     arg = _pilhaSemantica.Peek();
-                    x.WriteLine($"printf({arg.Lexema});");
+                    switch(arg.Token)
+                    {
+                        case "literal":
+                            x.WriteLine($"printf({arg.Lexema});");
+                            break;
+                        case "id":
+                            switch(arg.Tipo)
+                            {
+                                case "int":
+                                    x.WriteLine($"printf(\"%d\",{arg.Lexema});");
+                                    break;
+                                case "literal":
+                                    x.WriteLine($"printf(\"%s\",{arg.Lexema});");
+                                    break;
+                                case "double":
+                                    x.WriteLine($"printf(\"%lf\",{arg.Lexema});");
+                                    break;
+                            }                         
+                            break;
+                    }                    
                     break;
                 case 13:
                     s = _pilhaSemantica.Pop();

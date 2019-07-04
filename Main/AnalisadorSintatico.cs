@@ -79,7 +79,6 @@ namespace Main
                                 {
                                     PrintErro(simboloComErro.DescricaoERRO, simboloComErro);
                                 }
-
                             }
                             else
                             {
